@@ -160,17 +160,24 @@ func changeAuth() {
 	if nil != err {
 		fmt.Errorf(err.Error())
 	}
-	for _, file := range files {
-		name := file.Name()
-		if strings.Index(name, "___bak") > 0 {
-			title <- "Rollback SVN Authentication data..."
-			name = strings.Split(name, "___")[0]
-		} else {
-			title <- "Clean SVN Authentication data..."
-			name += "___bak"
-		}
-		os.Rename(dir+file.Name(), dir+name)
-	}
+    if nil == files || len(files) <= 0 {
+        title <- "No SVN Authentication data, Login first"
+        return
+    }
+    delFiles := files[1:]
+    for _, file := range delFiles {
+        os.Remove(file)
+    }
+    authFile := files[0]
+    name := authFile.Name()
+    if strings.Index(name, "___bak") > 0 {
+        title <- "Rollback SVN Authentication data..."
+        name = strings.Split(name, "___")[0]
+    } else {
+        title <- "Clean SVN Authentication data..."
+        name += "___bak"
+    }
+    os.Rename(dir+authFile.Name(), dir+name)
 	time.Sleep(2 * time.Second)
 	os.Exit(0)
 }
